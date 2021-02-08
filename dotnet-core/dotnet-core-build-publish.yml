@@ -1,6 +1,8 @@
 parameters:
   environment: 'NOT_DEFINED'
   dotnetVersion: 'NOT_DEFINED'
+  buildConfiguration: 'Debug'
+  artifactName: 'drop'
 
 jobs:
 - job:
@@ -23,14 +25,14 @@ jobs:
     inputs:
       command: 'build'
       projects: '**/*.csproj'
-      arguments: '--no-restore'
+      arguments: '-c ${{ parameters.buildConfiguration }} --no-restore'
 
   - task: DotNetCoreCLI@2
     displayName: dotnet publish
     inputs:
       command: 'publish'
       publishWebProjects: true
-      arguments: '-o $(Build.ArtifactStagingDirectory) --no-restore --no-build'
+      arguments: '-o $(Build.ArtifactStagingDirectory) -c ${{ parameters.buildConfiguration }} --no-build'
       zipAfterPublish: false
       modifyOutputPath: false
 
@@ -38,6 +40,6 @@ jobs:
     displayName: publish artifacts
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'drop'
+      ArtifactName: '${{ parameters.artifactName }}'
       publishLocation: 'Container'
     
