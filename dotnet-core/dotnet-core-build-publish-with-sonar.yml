@@ -1,6 +1,10 @@
 parameters:
   environment: 'NOT_DEFINED'
   dotnetVersion: 'NOT_DEFINED'
+  sonarEndpoint: 'NOT_DEFINED'
+  sonarOrganization: 'NOT_DEFINED'
+  sonarProjectKey: 'NOT_DEFINED'
+  sonarProjectName: 'NOT_DEFINED'
   buildConfiguration: 'Debug'
   artifactName: 'drop'
 
@@ -12,6 +16,16 @@ jobs:
     displayName: use dotnet ${{ parameters.dotnetVersion }}
     inputs:
       version: '${{ parameters.dotnetVersion }}'
+
+  - task: SonarCloudPrepare@1
+    displayName: sonar prepare
+    inputs:
+      SonarCloud: '${{ parameters.sonarEndpoint }}'
+      organization: '${{ parameters.sonarOrganization }}'
+      scannerMode: 'MSBuild'
+      projectKey: '${{ parameters.sonarProjectKey }}'
+      projectName: '${{ parameters.sonarProjectName }}'
+      projectVersion: '$(Build.BuildId)'
 
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
@@ -36,10 +50,17 @@ jobs:
       zipAfterPublish: false
       modifyOutputPath: false
 
+  - task: SonarCloudAnalyze@1
+    displayName: sonar analyze
+
+  - task: SonarCloudPublish@1
+    displayName: sonar publish
+    inputs:
+      pollingTimeoutSec: '300'
+
   - task: PublishBuildArtifacts@1
     displayName: publish artifacts
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: '${{ parameters.artifactName }}'
       publishLocation: 'Container'
-    
