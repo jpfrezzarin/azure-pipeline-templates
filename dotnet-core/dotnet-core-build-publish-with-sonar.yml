@@ -12,10 +12,11 @@ jobs:
 - job:
   displayName: dotnet - build & publish - ${{ parameters.environment }}
   steps:
-  - task: UseDotNet@2
-    displayName: use dotnet ${{ parameters.dotnetVersion }}
-    inputs:
-      version: '${{ parameters.dotnetVersion }}'
+  
+  # - task: UseDotNet@2
+  #   displayName: use dotnet ${{ parameters.dotnetVersion }}
+  #   inputs:
+  #     version: '${{ parameters.dotnetVersion }}'
 
   - task: SonarCloudPrepare@1
     displayName: sonar prepare
