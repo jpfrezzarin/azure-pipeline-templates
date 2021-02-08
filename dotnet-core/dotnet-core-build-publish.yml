@@ -1,14 +1,9 @@
 parameters:
   environment: 'NOT_DEFINED'
-  dotnetVersion: 'NOT_DEFINED'
   buildConfiguration: 'Debug'
   artifactName: 'drop'
 
 steps:
-- task: UseDotNet@2
-  displayName: use dotnet ${{ parameters.dotnetVersion }}
-  inputs:
-    version: '${{ parameters.dotnetVersion }}'
 
 - task: DotNetCoreCLI@2
   displayName: dotnet restore

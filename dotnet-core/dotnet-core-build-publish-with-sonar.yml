@@ -1,19 +1,13 @@
 parameters:
   environment: 'NOT_DEFINED'
-  dotnetVersion: 'NOT_DEFINED'
+  buildConfiguration: 'Debug'
+  artifactName: 'drop'
   sonarEndpoint: 'NOT_DEFINED'
   sonarOrganization: 'NOT_DEFINED'
   sonarProjectKey: 'NOT_DEFINED'
   sonarProjectName: 'NOT_DEFINED'
-  buildConfiguration: 'Debug'
-  artifactName: 'drop'
 
 steps:
-  
-# - task: UseDotNet@2
-#   displayName: use dotnet ${{ parameters.dotnetVersion }}
-#   inputs:
-#     version: '${{ parameters.dotnetVersion }}'
 
 - task: SonarCloudPrepare@1
   displayName: sonar prepare
