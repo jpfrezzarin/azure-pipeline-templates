@@ -8,60 +8,57 @@ parameters:
   buildConfiguration: 'Debug'
   artifactName: 'drop'
 
-jobs:
-- job:
-  displayName: dotnet - build & publish - ${{ parameters.environment }}
-  steps:
+steps:
   
-  # - task: UseDotNet@2
-  #   displayName: use dotnet ${{ parameters.dotnetVersion }}
-  #   inputs:
-  #     version: '${{ parameters.dotnetVersion }}'
+# - task: UseDotNet@2
+#   displayName: use dotnet ${{ parameters.dotnetVersion }}
+#   inputs:
+#     version: '${{ parameters.dotnetVersion }}'
 
-  - task: SonarCloudPrepare@1
-    displayName: sonar prepare
-    inputs:
-      SonarCloud: '${{ parameters.sonarEndpoint }}'
-      organization: '${{ parameters.sonarOrganization }}'
-      scannerMode: 'MSBuild'
-      projectKey: '${{ parameters.sonarProjectKey }}'
-      projectName: '${{ parameters.sonarProjectName }}'
-      projectVersion: '$(Build.BuildId)'
+- task: SonarCloudPrepare@1
+  displayName: sonar prepare
+  inputs:
+    SonarCloud: '${{ parameters.sonarEndpoint }}'
+    organization: '${{ parameters.sonarOrganization }}'
+    scannerMode: 'MSBuild'
+    projectKey: '${{ parameters.sonarProjectKey }}'
+    projectName: '${{ parameters.sonarProjectName }}'
+    projectVersion: '$(Build.BuildId)'
 
-  - task: DotNetCoreCLI@2
-    displayName: dotnet restore
-    inputs:
-      command: 'restore'
-      projects: '**/*.csproj'
-      feedsToUse: 'select'
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
 
-  - task: DotNetCoreCLI@2
-    displayName: dotnet build
-    inputs:
-      command: 'build'
-      projects: '**/*.csproj'
-      arguments: '-c ${{ parameters.buildConfiguration }} --no-restore'
+- task: DotNetCoreCLI@2
+  displayName: dotnet build
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '-c ${{ parameters.buildConfiguration }} --no-restore'
 
-  - task: DotNetCoreCLI@2
-    displayName: dotnet publish
-    inputs:
-      command: 'publish'
-      publishWebProjects: true
-      arguments: '-o $(Build.ArtifactStagingDirectory) -c ${{ parameters.buildConfiguration }} --no-build'
-      zipAfterPublish: false
-      modifyOutputPath: false
+- task: DotNetCoreCLI@2
+  displayName: dotnet publish
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '-o $(Build.ArtifactStagingDirectory) -c ${{ parameters.buildConfiguration }} --no-build'
+    zipAfterPublish: false
+    modifyOutputPath: false
 
-  - task: SonarCloudAnalyze@1
-    displayName: sonar analyze
+- task: SonarCloudAnalyze@1
+  displayName: sonar analyze
 
-  - task: SonarCloudPublish@1
-    displayName: sonar publish
-    inputs:
-      pollingTimeoutSec: '300'
+- task: SonarCloudPublish@1
+  displayName: sonar publish
+  inputs:
+    pollingTimeoutSec: '300'
 
-  - task: PublishBuildArtifacts@1
-    displayName: publish artifacts
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: '${{ parameters.artifactName }}'
-      publishLocation: 'Container'
+- task: PublishBuildArtifacts@1
+  displayName: publish artifacts
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: '${{ parameters.artifactName }}'
+    publishLocation: 'Container'
