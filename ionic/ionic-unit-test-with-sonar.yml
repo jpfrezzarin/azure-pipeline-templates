@@ -1,0 +1,55 @@
+parameters:
+  nodeVersion: 'NOT_DEFINED'
+  sonarEndpoint: 'NOT_DEFINED'
+  sonarOrganization: 'NOT_DEFINED'
+  sonarProjectKey: 'NOT_DEFINED'
+  sonarProjectName: 'NOT_DEFINED'
+  sonarVerbose: 'false'
+
+steps:
+
+- task: NodeTool@0
+  displayName: use node ${{ parameters.nodeVersion }}
+  inputs:
+    versionSpec: '${{ parameters.nodeVersion }}'
+
+- task: Npm@1
+  displayName: npm install
+  inputs:
+    command: 'install'
+
+- task: AngularCLI@1
+  displayName: ng test
+  inputs:
+    command: 'test'
+    arguments: '--watch=false --code-coverage --browsers=ChromeHeadless'
+    DisableAnalytics: false
+
+- task: SonarCloudPrepare@1
+  displayName: sonar prepare
+  inputs:
+    SonarCloud: '${{ parameters.sonarEndpoint }}'
+    organization: '${{ parameters.sonarOrganization }}'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: '${{ parameters.sonarProjectKey }}'
+    cliProjectName: '${{ parameters.sonarProjectName }}'
+    cliProjectVersion: '$(Build.BuildNumber)'
+    cliSources: '.'
+    extraProperties: |
+      sonar.tests=.
+      sonar.exclusions=**/platforms/**,**/plugins/**,**/resources/**,**/node_modules/**,**/coverage/**,**/dist/**
+      sonar.test.inclusions=**/*spec.ts
+      sonar.ts.tslintconfigpath=tslint.json
+      sonar.ts.lcov.reportpath=coverage/lcov.info
+      sonar.javascript.lcov.reportPaths=coverage/lcov.info
+      sonar.typescript.exclusions=**/node_modules/**,**/*routing.module.ts,**/*conf.js,**/*test.ts
+      sonar.verbose=${{ parameters.sonarVerbose }}
+
+- task: SonarCloudAnalyze@1
+  displayName: sonar analyze
+
+- task: SonarCloudPublish@1
+  displayName: sonar publish
+  inputs:
+    pollingTimeoutSec: '300'

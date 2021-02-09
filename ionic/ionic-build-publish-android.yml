@@ -1,0 +1,46 @@
+parameters:
+  nodeVersion: 'NOT_DEFINED'
+  ionicVersion: 'NOT_DEFINED'
+  cordovaVersion: 'NOT_DEFINED'
+  buildConfiguration: 'debug'
+  artifactName: 'drop'
+
+steps:
+- task: NodeTool@0
+  displayName: use node ${{ parameters.nodeVersion }}
+  inputs:
+    versionSpec: '${{ parameters.nodeVersion }}'
+
+- task: Npm@1
+  displayName: npm install
+  inputs:
+    command: 'install'
+
+- task: IonicCommand@1
+  displayName: ionic platforms add android
+  inputs:
+    ionicCommand: 'cordova platforms add android'
+    ionicVersion: '${{ parameters.ionicVersion }}'
+    cordovaVersion: '${{ parameters.cordovaVersion }}'
+
+- task: IonicCommand@1
+  displayName: ionic build android
+  inputs:
+    ionicCommand: 'cordova build android'
+    ionicArgs: '--${{ parameters.buildConfiguration }}'
+    ionicVersion: '${{ parameters.ionicVersion }}'
+    cordovaVersion: '${{ parameters.cordovaVersion }}'
+
+- task: CopyFiles@2
+  displayName: copy *.apk
+  inputs:
+    Contents: 'platforms/android/**/*.apk'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
+
+- task: PublishBuildArtifacts@1
+  displayName: publish artifacts
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: '${{ parameters.artifactName }}'
+    publishLocation: 'Container'
